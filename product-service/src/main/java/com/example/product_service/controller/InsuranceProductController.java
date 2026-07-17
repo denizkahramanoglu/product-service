@@ -2,7 +2,6 @@ package com.example.product_service.controller;
 
 import com.example.product_service.dto.InsuranceProductRequestDTO;
 import com.example.product_service.dto.InsuranceProductResponseDTO;
-import com.example.product_service.entity.InsuranceProductEntity;
 import com.example.product_service.service.InsuranceProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
