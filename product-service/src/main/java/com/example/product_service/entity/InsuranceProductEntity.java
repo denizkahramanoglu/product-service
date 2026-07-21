@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "insurance_product")
@@ -27,4 +30,18 @@ public class InsuranceProductEntity {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "created_by", updatable = false)
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
 }

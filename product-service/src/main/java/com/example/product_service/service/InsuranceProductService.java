@@ -3,42 +3,47 @@ package com.example.product_service.service;
 import com.example.product_service.dto.InsuranceProductRequestDTO;
 import com.example.product_service.dto.InsuranceProductResponseDTO;
 import com.example.product_service.entity.InsuranceProductEntity;
+import com.example.product_service.exception.BusinessException;
 import com.example.product_service.repository.InsuranceProductRepository;
+import com.example.product_service.mapper.InsuranceProductMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
+
 
 @Service
 @RequiredArgsConstructor
 public class InsuranceProductService {
 
+    // Bu sınıf için loglayıcıyı tanımlıyoruz
+    private static final Logger logger = LoggerFactory.getLogger(InsuranceProductService.class);
+
     private final InsuranceProductRepository repository;
+    private final InsuranceProductMapper mapper;
 
     public InsuranceProductResponseDTO saveProduct(InsuranceProductRequestDTO requestDto) {
-        // 1. Entity'yi oluştur (Builder'da productId yerine name kullan)
-        InsuranceProductEntity entity = InsuranceProductEntity.builder()
-                .name(requestDto.getName()) // İsim ismi almalı
-                .price(requestDto.getPrice())
-                .build();
 
-        // 2. Veritabanına kaydet (DB otomatik id verecek)
+
+        InsuranceProductEntity entity = mapper.toEntity(requestDto);
         InsuranceProductEntity savedEntity = repository.save(entity);
 
-        // 3. Kayıtlı veriyi DTO olarak dön (Burada id olarak savedEntity.getId() kullanılır)
-        return InsuranceProductResponseDTO.builder()
-                .productId(savedEntity.getProductId())
-                .name(savedEntity.getName())
-                .price(savedEntity.getPrice())
-                .build();
+        // Ürün kaydedildiğinde konsola bilgi (info) logu düşebilirsin
+        logger.info("Yeni sigorta ürünü başarıyla kaydedildi. Ürün ID: {}", savedEntity.getProductId());
+
+        return mapper.toResponseDto(savedEntity);
     }
 
     public InsuranceProductResponseDTO getProductById(Long id) {
-        InsuranceProductEntity entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ürün bulunamadı: " + id));
 
-        return InsuranceProductResponseDTO.builder()
-                .productId(entity.getProductId())
-                .name(entity.getName())
-                .price(entity.getPrice())
-                .build();
+        // RuntimeException yerine 404 dönen kurumsal hatamızı fırlatıyoruz
+        InsuranceProductEntity entity = repository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        "Ürün bulunamadı! Geçersiz Ürün ID: " + id,
+                        HttpStatus.NOT_FOUND
+                ));
+
+        return mapper.toResponseDto(entity);
     }
 }
