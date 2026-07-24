@@ -4,5 +4,27 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <include file="001-create-product-table.xml" relativeToChangelogFile="true"/>
+    <include file="003-create-delete-flag.xml" relativeToChangelogFile="true"/>
+
+    <!-- Meslekler (Tablo ve Veri) -->
+
+
+    <!-- Hastalıklar (Tablo ve Veri) -->
+
+
+
+    <!-- Fiyatlama / Risk Hesaplama Fonksiyonu -->
+    <include file="011-create-pricing-function.xml" relativeToChangelogFile="true"/>
+
+    <include file="012-add-audit-columns-to-occupations.xml" relativeToChangelogFile="true"/>
+    <include file="013-add-audit-columns-to-diseases.xml" relativeToChangelogFile="true"/>
+
+    <include file="create_currency_table.xml" relativeToChangelogFile="true"/>
+    <include file="add_fk_public_to_currencies.xml" relativeToChangelogFile="true"/>
+
+    <include file="risk-parameters.xml" relativeToChangelogFile="true"/>
+    <include file="add-risks.xml" relativeToChangelogFile="true"/>
+
+
 
 </databaseChangeLog>

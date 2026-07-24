@@ -1,6 +1,5 @@
 package com.example.product_service.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InsuranceProductRequestDTO {
-
-    private String name;
-    private BigDecimal price;
-    private String code;
+public class PricingResponseDTO {
+    private BigDecimal finalPrice;
+    private String currency;
 }

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+
+<changeSet id="011-create-pricing-function" author="deniz">
+    <sql splitStatements="false">
+        CREATE OR REPLACE FUNCTION calculate_total_risk_factor(
+        p_age INT,
+        p_gender VARCHAR,
+        p_occupation_id INT,
+        p_is_smoker BOOLEAN,
+        p_personal_disease_ids INT[],
+        p_family_disease_ids INT[],
+        p_height NUMERIC,
+        p_weight NUMERIC
+        ) RETURNS NUMERIC AS $$
+        DECLARE
+        v_age_factor NUMERIC := 1.00;
+        v_gender_factor NUMERIC := 1.00;
+        v_occupation_factor NUMERIC := 1.00;
+        v_smoker_factor NUMERIC := 1.00;
+        v_personal_disease_factor NUMERIC := 1.00;
+        v_family_disease_factor NUMERIC := 1.00;
+        v_total_disease_factor NUMERIC := 1.00;
+        v_bmi_factor NUMERIC := 1.00;
+        v_risk_level VARCHAR;
+        v_bmi NUMERIC;
+        BEGIN
+        -- 1. Yaş Katsayısı
+        IF p_age &lt;= 30 THEN v_age_factor := 1.00;
+        ELSIF p_age &lt;= 45 THEN v_age_factor := 1.20;
+        ELSIF p_age &lt;= 60 THEN v_age_factor := 1.50;
+        ELSIF p_age &lt;= 75 THEN v_age_factor := 2.20;
+        ELSE v_age_factor := 3.00;
+        END IF;
+
+        -- 2. Cinsiyet Katsayısı
+        IF p_gender = 'MALE' THEN v_gender_factor := 1.05; END IF;
+
+        -- 3. Meslek Katsayısı
+        SELECT risk_level INTO v_risk_level FROM occupations WHERE id = p_occupation_id;
+        CASE v_risk_level
+        WHEN 'LOW' THEN v_occupation_factor := 1.00;
+        WHEN 'MEDIUM' THEN v_occupation_factor := 1.15;
+        WHEN 'HIGH' THEN v_occupation_factor := 1.40;
+        WHEN 'EXTREME' THEN v_occupation_factor := 2.00;
+        ELSE v_occupation_factor := 1.00;
+        END CASE;
+
+        -- 4. Sigara Katsayısı
+        IF p_is_smoker THEN v_smoker_factor := 1.50; END IF;
+
+        -- 5. Hastalıklar (Kişisel)
+        IF p_personal_disease_ids IS NOT NULL AND array_length(p_personal_disease_ids, 1) &gt; 0 THEN
+        SELECT COALESCE(EXP(SUM(LN(personal_factor))), 1.00)
+        INTO v_personal_disease_factor FROM diseases WHERE id = ANY(p_personal_disease_ids);
+        END IF;
+
+        -- 6. Hastalıklar (Ailevi)
+        IF p_family_disease_ids IS NOT NULL AND array_length(p_family_disease_ids, 1) &gt; 0 THEN
+        SELECT COALESCE(EXP(SUM(LN(family_factor))), 1.00)
+        INTO v_family_disease_factor FROM diseases WHERE id = ANY(p_family_disease_ids);
+        END IF;
+
+        v_total_disease_factor := v_personal_disease_factor * v_family_disease_factor;
+
+        -- 7. Boy / Kilo (BMI) Katsayısı
+        IF p_height &gt; 0 THEN
+        v_bmi := p_weight / (p_height * p_height);
+        IF v_bmi &lt; 18.5 THEN v_bmi_factor := 1.10;
+        ELSIF v_bmi &lt; 25.0 THEN v_bmi_factor := 1.00;
+        ELSIF v_bmi &lt; 30.0 THEN v_bmi_factor := 1.15;
+        ELSIF v_bmi &lt; 35.0 THEN v_bmi_factor := 1.30;
+        ELSE v_bmi_factor := 1.60;
+        END IF;
+        END IF;
+
+        -- Tüm Katsayıların Çarpımı
+        RETURN v_age_factor * v_gender_factor * v_occupation_factor * v_smoker_factor * v_total_disease_factor * v_bmi_factor;
+        END;
+        $$ LANGUAGE plpgsql;
+    </sql>
+</changeSet>
+
+        </databaseChangeLog>
