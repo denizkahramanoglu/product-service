@@ -4,8 +4,8 @@ import com.example.product_service.dto.InsuranceProductRequestDTO;
 import com.example.product_service.dto.InsuranceProductResponseDTO;
 import com.example.product_service.entity.InsuranceProductEntity;
 import com.example.product_service.exception.BusinessException;
-import com.example.product_service.repository.InsuranceProductRepository;
 import com.example.product_service.mapper.InsuranceProductMapper;
+import com.example.product_service.repository.InsuranceProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public class InsuranceProductService {
 
-    // Bu sınıf için loglayıcıyı tanımlıyoruz
     private static final Logger logger = LoggerFactory.getLogger(InsuranceProductService.class);
 
     private final InsuranceProductRepository repository;
@@ -37,7 +36,6 @@ public class InsuranceProductService {
 
     public InsuranceProductResponseDTO getProductById(Long id) {
 
-        // RuntimeException yerine 404 dönen kurumsal hatamızı fırlatıyoruz
         InsuranceProductEntity entity = repository.findById(id)
                 .orElseThrow(() -> new BusinessException(
                         "Ürün bulunamadı! Geçersiz Ürün ID: " + id,
@@ -46,4 +44,26 @@ public class InsuranceProductService {
 
         return mapper.toResponseDto(entity);
     }
+    public InsuranceProductResponseDTO updateProduct(Long id, InsuranceProductRequestDTO requestDto) {
+
+        InsuranceProductEntity existingProduct = repository.findById(id)
+                .orElseThrow(() -> new BusinessException("Güncellenecek ürün bulunamadı! ID: " + id, HttpStatus.NOT_FOUND));
+
+
+        existingProduct.setName(requestDto.getName());
+        existingProduct.setBasePrice(requestDto.getPrice());
+
+
+        InsuranceProductEntity updatedProduct = repository.save(existingProduct);
+
+        return mapper.toResponseDto(updatedProduct);
+    }
+    public void deleteProduct(Long id) {
+        InsuranceProductEntity product = repository.findById(id)
+                .orElseThrow(() -> new BusinessException("Silinmek istenen ürün bulunamadı! ID: " + id, HttpStatus.NOT_FOUND));
+
+        product.setDeleted(true);
+        repository.save(product);
+    }
+
 }
