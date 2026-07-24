@@ -1,0 +1,24 @@
+name,risk_level
+Yazılım Mühendisi,LOW
+Öğretmen,LOW
+Muhasebeci,LOW
+Avukat,LOW
+Mimar,LOW
+Banka Memuru,LOW
+Eczacı,LOW
+Doktor,MEDIUM
+Hemşire,MEDIUM
+Polis Memuru,MEDIUM
+Fabrika İşçisi,MEDIUM
+Marangoz,MEDIUM
+Taksi Şoförü,MEDIUM
+İnşaat İşçisi,HIGH
+İtfaiyeci,HIGH
+Silahlı Güvenlik Görevlisi,HIGH
+Motokurye,HIGH
+Çatı Ustası,HIGH
+Maden İşçisi,EXTREME
+Endüstriyel Dalgıç,EXTREME
+Bomba İmha Uzmanı,EXTREME
+Yüksek Gerilim Hattı İşçisi,EXTREME
+Petrol Kulesi İşçisi,EXTREME

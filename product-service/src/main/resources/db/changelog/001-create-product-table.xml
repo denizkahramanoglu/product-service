@@ -14,6 +14,9 @@
             <column name="price" type="DECIMAL(10,2)">
                 <constraints nullable="false"/>
             </column>
+            <column name="code" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -25,5 +28,11 @@
             <column name="updated_by" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-
+        <changeSet id="rename-insurance-product-price-column" author="developer">
+            <renameColumn
+                    tableName="insurance_product"
+                    oldColumnName="price"
+                    newColumnName="base_price"
+                    columnDataType="NUMERIC"/>
+        </changeSet>
 </databaseChangeLog>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="create_currency_table" author="developer">
+        <createTable schemaName="currencies" tableName="currency">
+            <column name="code" type="VARCHAR(3)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="definition" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="updated_by" type="VARCHAR(50)"/>
+            <column name="is_active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="insert_initial_currencies" author="developer">
+
+        <insert schemaName="currencies" tableName="currency">
+            <column name="code" value="TRY"/>
+            <column name="definition" value="Türk Lirası"/>
+            <column name="created_by" value="system"/>
+        </insert>
+        <insert schemaName="currencies" tableName="currency">
+            <column name="code" value="USD"/>
+            <column name="definition" value="Amerikan Doları"/>
+            <column name="created_by" value="system"/>
+        </insert>
+        <insert schemaName="currencies" tableName="currency">
+            <column name="code" value="EUR"/>
+            <column name="definition" value="Euro"/>
+            <column name="created_by" value="system"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

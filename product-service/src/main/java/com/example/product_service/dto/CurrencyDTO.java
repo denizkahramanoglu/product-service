@@ -1,9 +1,13 @@
 package com.example.product_service.dto;
 
-import lombok.Data;
+import lombok.*;
 
+
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
-public class CurrencyResponseDTO {
+@Builder
+public class CurrencyDTO {
     private String code;
     private String definition;
 }

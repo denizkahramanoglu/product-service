@@ -1,9 +1,9 @@
 package com.example.product_service.repository;
 
-import com.example.product_service.entity.OccupationEntity;
+import com.example.product_service.entity.PersonalDiseasesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface OccupationRepository extends JpaRepository<OccupationEntity, Long> {
+public interface PersonalDiseaseRepository extends JpaRepository<PersonalDiseasesEntity, Long> {
 }

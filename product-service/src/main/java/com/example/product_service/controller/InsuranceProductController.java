@@ -22,15 +22,34 @@ public class InsuranceProductController {
     public ResponseEntity<InsuranceProductResponseDTO> createProduct(@RequestBody InsuranceProductRequestDTO requestDto) {
         InsuranceProductResponseDTO response = insuranceProductService.saveProduct(requestDto);
 
-        // Yeni kaynak (ürün) oluşturulduğu için 201 döndürüyoruz
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     @Operation(summary = "Gerekli ürünü getirme")
     @GetMapping("/{id}")
     public ResponseEntity<InsuranceProductResponseDTO> getProduct(@PathVariable Long id) {
 
-        // Eğer ID yoksa, Service katmanı anında BusinessException fırlatacak.
-        // Hata yakalayıcı da onu 404 (Not Found) JSON formatına çevirip kullanıcıya basacak.
+
         return ResponseEntity.ok(insuranceProductService.getProductById(id));
+    }
+
+    @Operation(summary = "Ürünü güncelleme")
+    @PutMapping("/{id}")
+    public ResponseEntity<InsuranceProductResponseDTO> updateProduct(
+            @PathVariable Long id,
+            @RequestBody InsuranceProductRequestDTO requestDto) {
+
+        InsuranceProductResponseDTO response = insuranceProductService.updateProduct(id, requestDto);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Ürünü silme (Soft Delete)")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        insuranceProductService.deleteProduct(id);
+
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -2,23 +2,23 @@ package com.example.product_service.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "insurance_product")
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-
+@Getter
+@Setter
+@SQLDelete(sql = "UPDATE insurance_product SET is_deleted = true WHERE id=?")
+@SQLRestriction("is_deleted = false")
+@Table(name = "insurance_product")
 public class InsuranceProductEntity {
 
     @Id
@@ -28,8 +28,11 @@ public class InsuranceProductEntity {
     @Column(name = "product_name", nullable = false)
     private String name;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "base_price",nullable = false, precision = 10, scale = 2)
+    private BigDecimal basePrice;
+
+    @Column(name = "code", length = 3, nullable = false)
+    private String code;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -44,4 +47,8 @@ public class InsuranceProductEntity {
 
     @Column(name = "updated_by")
     private String updatedBy;
+
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 }

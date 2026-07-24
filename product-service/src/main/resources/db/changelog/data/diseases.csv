@@ -1,0 +1,16 @@
+name,personal_factor,family_factor
+Astım,1.15,1.05
+Diyabet (Tip 1),1.50,1.10
+Diyabet (Tip 2),1.40,1.15
+Hipertansiyon (Yüksek Tansiyon),1.25,1.10
+Kalp Yetmezliği,1.80,1.30
+Kalp Krizi Geçmişi,1.90,1.40
+Kanser Geçmişi,2.00,1.30
+KOAH (Kronik Obstrüktif Akciğer),1.60,1.10
+Kronik Böbrek Yetmezliği,1.75,1.20
+Tiroid Hastalıkları,1.10,1.00
+Epilepsi (Sara),1.35,1.10
+Romatoid Artrit,1.20,1.05
+Multiple Skleroz (MS),1.65,1.15
+Parkinson,1.55,1.20
+Alzheimer Geçmişi,1.00,1.40

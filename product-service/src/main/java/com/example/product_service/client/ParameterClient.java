@@ -1,7 +1,7 @@
 
 package com.example.product_service.client;
 
-import com.example.product_service.dto.CurrencyResponseDTO;
+import com.example.product_service.dto.CurrencyDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +12,5 @@ public interface ParameterClient {
 
 
     @GetMapping("/api/currencies/{code}")
-    CurrencyResponseDTO getByCode(@PathVariable("code") String code);
-
+    CurrencyDTO getByCode(@PathVariable("code") String code);
 }
