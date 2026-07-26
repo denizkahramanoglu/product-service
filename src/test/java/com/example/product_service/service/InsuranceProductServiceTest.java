@@ -4,6 +4,7 @@ import com.example.product_service.dto.InsuranceProductRequestDTO;
 import com.example.product_service.dto.InsuranceProductResponseDTO;
 import com.example.product_service.entity.InsuranceProductEntity;
 import com.example.product_service.exception.BusinessException;
+import com.example.product_service.mapper.InsuranceProductMapper;
 import com.example.product_service.repository.InsuranceProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class InsuranceProductServiceTest {
         entity = new InsuranceProductEntity();
         entity.setProductId(1L);
         entity.setName("Hayat Sigortası");
-        entity.setPrice(new BigDecimal("5000.00"));
+        entity.setBasePrice(new BigDecimal("5000.00"));
         entity.setDeleted(false);
 
         responseDto = new InsuranceProductResponseDTO();
