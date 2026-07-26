@@ -6,22 +6,22 @@ import com.example.product_service.entity.InsuranceProductEntity;
 import com.example.product_service.exception.BusinessException;
 import com.example.product_service.mapper.InsuranceProductMapper;
 import com.example.product_service.repository.InsuranceProductRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InsuranceProductService {
 
-    private static final Logger logger = LoggerFactory.getLogger(InsuranceProductService.class);
 
     private final InsuranceProductRepository repository;
     private final InsuranceProductMapper mapper;
 
+    @Transactional
     public InsuranceProductResponseDTO saveProduct(InsuranceProductRequestDTO requestDto) {
 
 
@@ -29,7 +29,7 @@ public class InsuranceProductService {
         InsuranceProductEntity savedEntity = repository.save(entity);
 
         // Ürün kaydedildiğinde konsola bilgi (info) logu düşebilirsin
-        logger.info("Yeni sigorta ürünü başarıyla kaydedildi. Ürün ID: {}", savedEntity.getProductId());
+        log.info("Yeni sigorta ürünü başarıyla kaydedildi. Ürün ID: {}", savedEntity.getProductId());
 
         return mapper.toResponseDto(savedEntity);
     }
@@ -44,6 +44,7 @@ public class InsuranceProductService {
 
         return mapper.toResponseDto(entity);
     }
+    @Transactional
     public InsuranceProductResponseDTO updateProduct(Long id, InsuranceProductRequestDTO requestDto) {
 
         InsuranceProductEntity existingProduct = repository.findById(id)
@@ -58,6 +59,7 @@ public class InsuranceProductService {
 
         return mapper.toResponseDto(updatedProduct);
     }
+    @Transactional
     public void deleteProduct(Long id) {
         InsuranceProductEntity product = repository.findById(id)
                 .orElseThrow(() -> new BusinessException("Silinmek istenen ürün bulunamadı! ID: " + id, HttpStatus.NOT_FOUND));

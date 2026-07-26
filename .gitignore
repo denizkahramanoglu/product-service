@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+git rm -r --cached .idea
+git commit -m "Remove .idea folder"
+git push origin master
