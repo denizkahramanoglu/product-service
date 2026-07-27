@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Table(name = "risk_parameters")
 @Getter
 @Setter
-public class RiskParameterEntity { // İsmini kendi entity adına göre ayarlayabilirsin (RiskParameter de olabilir)
+public class RiskParameterEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

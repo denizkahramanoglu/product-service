@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,135 +33,128 @@ class InsuranceProductServiceTest {
     @InjectMocks
     private InsuranceProductService service;
 
-    private InsuranceProductRequestDTO requestDto;
+    private InsuranceProductRequestDTO requestDTO;
+    private InsuranceProductResponseDTO responseDTO;
     private InsuranceProductEntity entity;
-    private InsuranceProductResponseDTO responseDto;
+    private final Long productID = 1L;
 
     @BeforeEach
     void setUp() {
-        requestDto = new InsuranceProductRequestDTO();
-        requestDto.setName("Hayat Sigortası");
-        requestDto.setPrice(new BigDecimal("5000.00"));
+        // Her testten önce kullanılacak ortak nesneleri hazırlıyoruz
+        requestDTO = new InsuranceProductRequestDTO();
+        requestDTO.setName("Sağlık Sigortası");
+        requestDTO.setPrice(BigDecimal.valueOf(1500));
 
         entity = new InsuranceProductEntity();
-        entity.setProductId(1L);
-        entity.setName("Hayat Sigortası");
-        entity.setBasePrice(new BigDecimal("5000.00"));
-        entity.setDeleted(false);
+        entity.setProductId(productID); // Eğer getProductId() metodu 'id' alanını okuyorsa
+        entity.setName("Sağlık Sigortası");
+        entity.setBasePrice(BigDecimal.valueOf(1500));
+        entity.setIsDeleted(false);
 
-        responseDto = new InsuranceProductResponseDTO();
-        responseDto.setProductId(1L);
+        responseDTO = new InsuranceProductResponseDTO();
+        responseDTO.setName("Sağlık Sigortası");
+        responseDTO.setPrice(BigDecimal.valueOf(1500));
     }
 
+    // ==========================================
+    // saveProduct METODU TESTLERİ
+    // ==========================================
     @Test
-    void saveProduct_Success() {
-        // Given
-        when(mapper.toEntity(requestDto)).thenReturn(entity);
+    void testSaveProduct_Success() {
+        when(mapper.toEntity(requestDTO)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(entity);
-        when(mapper.toResponseDto(entity)).thenReturn(responseDto);
+        when(mapper.toResponseDto(entity)).thenReturn(responseDTO);
 
-        // When
-        InsuranceProductResponseDTO result = service.saveProduct(requestDto);
+        InsuranceProductResponseDTO result = service.saveProduct(requestDTO);
 
-        // Then
         assertNotNull(result);
-        assertEquals(1L, result.getProductId());
-        verify(repository, times(1)).save(entity);
+        assertEquals("Sağlık Sigortası", result.getName());
+
+        verify(mapper).toEntity(requestDTO);
+        verify(repository).save(entity);
+        verify(mapper).toResponseDto(entity);
+    }
+
+    // ==========================================
+    // getProductById METODU TESTLERİ
+    // ==========================================
+    @Test
+    void testGetProductById_Success() {
+        when(repository.findById(productID)).thenReturn(Optional.of(entity));
+        when(mapper.toResponseDto(entity)).thenReturn(responseDTO);
+
+        InsuranceProductResponseDTO result = service.getProductById(productID);
+
+        assertNotNull(result);
+        assertEquals("Sağlık Sigortası", result.getName());
+        verify(repository).findById(productID);
     }
 
     @Test
-    void getProductById_Success() {
-        // Given
-        when(repository.findById(1L)).thenReturn(Optional.of(entity));
-        when(mapper.toResponseDto(entity)).thenReturn(responseDto);
+    void testGetProductById_ThrowsException_WhenNotFound() {
+        when(repository.findById(productID)).thenReturn(Optional.empty());
 
-        // When
-        InsuranceProductResponseDTO result = service.getProductById(1L);
+        BusinessException exception = assertThrows(BusinessException.class, () -> service.getProductById(productID));
 
-        // Then
-        assertNotNull(result);
-        assertEquals(1L, result.getProductId());
-    }
-
-    @Test
-    void getProductById_NotFound_ThrowsBusinessException() {
-        // Given
-        when(repository.findById(1L)).thenReturn(Optional.empty());
-
-        // When & Then
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            service.getProductById(1L);
-        });
-
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertTrue(exception.getMessage().contains("Ürün bulunamadı"));
-    }
-
-    // --- YENİ EKLENEN UPDATE VE DELETE TESTLERİ ---
-
-    @Test
-    void updateProduct_Success() {
-        // Given
-        requestDto.setName("Güncellenmiş Hayat Sigortası");
-
-        when(repository.findById(1L)).thenReturn(Optional.of(entity));
-        when(repository.save(any(InsuranceProductEntity.class))).thenReturn(entity);
-        when(mapper.toResponseDto(entity)).thenReturn(responseDto);
-
-        // When
-        InsuranceProductResponseDTO result = service.updateProduct(1L, requestDto);
-
-        // Then
-        assertNotNull(result);
-        // Save ve Mapper metodlarının tetiklendiğini doğruluyoruz
-        verify(repository, times(1)).save(entity);
-        verify(mapper, times(1)).toResponseDto(entity);
-
-        // requestDto'dan gelen değerin entity'ye aktarıldığını (manuel mapping varsa) teyit edebiliriz
-        assertEquals("Güncellenmiş Hayat Sigortası", entity.getName());
-    }
-
-    @Test
-    void updateProduct_NotFound_ThrowsBusinessException() {
-        // Given
-        when(repository.findById(1L)).thenReturn(Optional.empty());
-
-        // When & Then
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            service.updateProduct(1L, requestDto);
-        });
-
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-        // Ürün bulunamadığı için veritabanına kaydetme (save) işlemi HİÇ çağrılmamalıdır
+        verify(mapper, never()).toResponseDto(any()); // Hata fırladığı için mapper hiç çağrılmamalı
+    }
+
+    // ==========================================
+    // updateProduct METODU TESTLERİ
+    // ==========================================
+    @Test
+    void testUpdateProduct_Success() {
+        when(repository.findById(productID)).thenReturn(Optional.of(entity));
+        when(repository.save(any(InsuranceProductEntity.class))).thenReturn(entity);
+        when(mapper.toResponseDto(entity)).thenReturn(responseDTO);
+
+        InsuranceProductResponseDTO result = service.updateProduct(productID, requestDTO);
+
+        assertNotNull(result);
+        assertEquals("Sağlık Sigortası", result.getName());
+
+        verify(repository).findById(productID);
+        verify(repository).save(entity);
+    }
+
+    @Test
+    void testUpdateProduct_ThrowsException_WhenNotFound() {
+        when(repository.findById(productID)).thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(BusinessException.class, () -> service.updateProduct(productID, requestDTO));
+
+        assertTrue(exception.getMessage().contains("Güncellenecek ürün bulunamadı"));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         verify(repository, never()).save(any());
     }
 
+    // ==========================================
+    // deleteProduct METODU TESTLERİ
+    // ==========================================
     @Test
-    void deleteProduct_Success() {
-        // Given
-        when(repository.findById(1L)).thenReturn(Optional.of(entity));
+    void testDeleteProduct_Success() {
+        when(repository.findById(productID)).thenReturn(Optional.of(entity));
+        when(repository.save(any(InsuranceProductEntity.class))).thenReturn(entity);
 
-        // When
-        service.deleteProduct(1L);
+        service.deleteProduct(productID);
 
-        // Then
-        // Soft delete bayrağının true yapıldığını ve veritabanına kaydedildiğini doğruluyoruz
-        assertTrue(entity.isDeleted());
-        verify(repository, times(1)).save(entity);
+
+        assertTrue(entity.getIsDeleted());
+
+        verify(repository).findById(productID);
+        verify(repository).save(entity);
     }
 
     @Test
-    void deleteProduct_NotFound_ThrowsBusinessException() {
-        // Given
-        when(repository.findById(1L)).thenReturn(Optional.empty());
+    void testDeleteProduct_ThrowsException_WhenNotFound() {
+        when(repository.findById(productID)).thenReturn(Optional.empty());
 
-        // When & Then
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            service.deleteProduct(1L);
-        });
+        BusinessException exception = assertThrows(BusinessException.class, () -> service.deleteProduct(productID));
 
+        assertTrue(exception.getMessage().contains("Silinmek istenen ürün bulunamadı"));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-        // Ürün bulunamadığı için veritabanına silme(güncelleme) işlemi HİÇ çağrılmamalıdır
         verify(repository, never()).save(any());
     }
 }
