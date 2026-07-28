@@ -28,7 +28,7 @@ public class InsuranceProductService {
         InsuranceProductEntity entity = mapper.toEntity(requestDto);
         InsuranceProductEntity savedEntity = repository.save(entity);
 
-        // Ürün kaydedildiğinde konsola bilgi (info) logu düşebilirsin
+
         log.info("Yeni sigorta ürünü başarıyla kaydedildi. Ürün ID: {}", savedEntity.getProductId());
 
         return mapper.toResponseDto(savedEntity);
@@ -37,10 +37,7 @@ public class InsuranceProductService {
     public InsuranceProductResponseDTO getProductById(Long id) {
 
         InsuranceProductEntity entity = repository.findById(id)
-                .orElseThrow(() -> new BusinessException(
-                        "Ürün bulunamadı! Geçersiz Ürün ID: " + id,
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> new BusinessException("Ürün bulunamadı! Geçersiz Ürün ID: " + id, HttpStatus.NOT_FOUND));
 
         return mapper.toResponseDto(entity);
     }
@@ -64,7 +61,7 @@ public class InsuranceProductService {
         InsuranceProductEntity product = repository.findById(id)
                 .orElseThrow(() -> new BusinessException("Silinmek istenen ürün bulunamadı! ID: " + id, HttpStatus.NOT_FOUND));
 
-        product.setDeleted(true);
+        product.setIsDeleted(true);
         repository.save(product);
     }
 

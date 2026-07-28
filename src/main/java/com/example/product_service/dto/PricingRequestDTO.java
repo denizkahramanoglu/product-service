@@ -10,8 +10,8 @@ import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class PricingRequestDTO {
     private Long productId;
     private int age;
