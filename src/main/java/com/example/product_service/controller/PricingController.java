@@ -2,7 +2,7 @@ package com.example.product_service.controller;
 
 import com.example.product_service.dto.PricingRequestDTO;
 import com.example.product_service.dto.PricingResponseDTO;
-import com.example.product_service.service.PricingService;
+import com.example.product_service.PricingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
