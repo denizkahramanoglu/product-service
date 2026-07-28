@@ -19,6 +19,7 @@ public interface InsuranceProductMapper {
     InsuranceProductEntity toEntity(InsuranceProductRequestDTO requestDto);
 
 
+    @Mapping(source = "basePrice", target = "price")
     InsuranceProductResponseDTO toResponseDto(InsuranceProductEntity entity);
 
 }

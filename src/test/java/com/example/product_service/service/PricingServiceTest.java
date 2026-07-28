@@ -81,14 +81,13 @@ class PricingServiceTest {
         // Execute
         PricingResponseDTO response = pricingService.calculateFinalPrice(validRequest);
 
-        // Assert (1000 * 1.2 * 1.1 * 1.05 * 1.3 * 1.5 * 1.5 = 4054.05)
         BigDecimal expectedFinalPrice = BigDecimal.valueOf(1000)
                 .multiply(BigDecimal.valueOf(1.2))
                 .multiply(BigDecimal.valueOf(1.1))
                 .multiply(BigDecimal.valueOf(1.05))
                 .multiply(BigDecimal.valueOf(1.3))
                 .multiply(BigDecimal.valueOf(1.5))
-                .multiply(BigDecimal.valueOf(1.5)); // max disease multiplier
+                .multiply(BigDecimal.valueOf(1.5));
 
         assertNotNull(response);
         assertEquals(0, expectedFinalPrice.compareTo(response.getFinalPrice()));
@@ -98,7 +97,7 @@ class PricingServiceTest {
     @Test
     void testCalculateFinalPrice_Success_NoDiseasesAndNonSmoker() {
         validRequest.setSmoker(false);
-        validRequest.setPersonalDiseaseIds(null); // Hastalık listesi null durumu test ediliyor
+        validRequest.setPersonalDiseaseIds(null);
 
         when(productRepository.findById(validRequest.getProductId())).thenReturn(Optional.of(mockProduct));
         when(riskParameterRepository.findValueByCode("AGE_30")).thenReturn(BigDecimal.valueOf(1.2));
@@ -109,7 +108,6 @@ class PricingServiceTest {
 
         PricingResponseDTO response = pricingService.calculateFinalPrice(validRequest);
 
-        // Hastalık olmadığı için multiplier default 1.0 alınacak
         BigDecimal expectedFinalPrice = BigDecimal.valueOf(1000)
                 .multiply(BigDecimal.valueOf(1.2))
                 .multiply(BigDecimal.valueOf(1.1))
@@ -204,8 +202,6 @@ class PricingServiceTest {
     }
     @Test
     void testCalculateFinalPrice_Success_EmptyDiseaseList() {
-        // Hastalık listesi null değil, ancak BOŞ bir liste.
-        // Bu, "!request.getPersonalDiseaseIds().isEmpty()" branch'inin false dönmesini test eder.
         validRequest.setPersonalDiseaseIds(Collections.emptyList());
 
         when(productRepository.findById(validRequest.getProductId())).thenReturn(Optional.of(mockProduct));
@@ -217,19 +213,17 @@ class PricingServiceTest {
 
         PricingResponseDTO response = pricingService.calculateFinalPrice(validRequest);
 
-        // Hastalık olmadığı için multiplier default 1.0 alınacak
         BigDecimal expectedFinalPrice = BigDecimal.valueOf(1000)
                 .multiply(BigDecimal.valueOf(1.2))
                 .multiply(BigDecimal.valueOf(1.1))
                 .multiply(BigDecimal.valueOf(1.05))
                 .multiply(BigDecimal.valueOf(1.3))
-                .multiply(BigDecimal.valueOf(1.5)) // Smoker Yes
-                .multiply(BigDecimal.ONE); // Hastalık çarpanı 1
+                .multiply(BigDecimal.valueOf(1.5))
+                .multiply(BigDecimal.ONE);
 
         assertNotNull(response);
         assertEquals(0, expectedFinalPrice.compareTo(response.getFinalPrice()));
 
-        // Veritabanına hastalık sorgusu HİÇ atılmamış olmalı (çünkü if bloğuna girmemeli)
         verify(riskParameterRepository, never()).findDiseaseRiskValues(any());
     }
 }

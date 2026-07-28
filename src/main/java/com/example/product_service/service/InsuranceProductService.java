@@ -37,10 +37,7 @@ public class InsuranceProductService {
     public InsuranceProductResponseDTO getProductById(Long id) {
 
         InsuranceProductEntity entity = repository.findById(id)
-                .orElseThrow(() -> new BusinessException(
-                        "Ürün bulunamadı! Geçersiz Ürün ID: " + id,
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> new BusinessException("Ürün bulunamadı! Geçersiz Ürün ID: " + id, HttpStatus.NOT_FOUND));
 
         return mapper.toResponseDto(entity);
     }
