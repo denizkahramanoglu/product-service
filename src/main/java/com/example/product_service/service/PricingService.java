@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.example.product_service.util.BusinessExceptionUtil.businessExceptionCheckerAndThrowException;
 
@@ -36,14 +38,14 @@ public class PricingService {
         BigDecimal ageMultiplier = riskParameterRepository.findValueByCode("AGE_" + request.getAge());
         businessExceptionCheckerAndThrowException(ageMultiplier == null, "Yaş grubu için risk parametresi bulunamadı. Yaş: " + request.getAge(), HttpStatus.NOT_FOUND);
         BigDecimal genderMultiplier = riskParameterRepository.findValueByCode("GENDER_" + request.getGender().toUpperCase());
-        businessExceptionCheckerAndThrowException(genderMultiplier == null ,"Cinsiyet için risk parametresi bulunamadı: " + request.getGender(), HttpStatus.NOT_FOUND);
+        businessExceptionCheckerAndThrowException(genderMultiplier == null, "Cinsiyet için risk parametresi bulunamadı: " + request.getGender(), HttpStatus.NOT_FOUND);
         BigDecimal bmiMultiplier = riskParameterRepository.findBmiRiskValue(request.getWeight(), request.getHeight());
-        businessExceptionCheckerAndThrowException(bmiMultiplier == null , "Girilen boy ve kilo değerlerine uygun BMI aralığı bulunamadı.", HttpStatus.NOT_FOUND);
+        businessExceptionCheckerAndThrowException(bmiMultiplier == null, "Girilen boy ve kilo değerlerine uygun BMI aralığı bulunamadı.", HttpStatus.NOT_FOUND);
         BigDecimal occupationMultiplier = riskParameterRepository.findOccupationRiskValue(request.getOccupationId());
-        businessExceptionCheckerAndThrowException(occupationMultiplier == null , "Meslek bilgisi veya meslek risk parametresi bulunamadı. ID: " + request.getOccupationId(), HttpStatus.NOT_FOUND);
+        businessExceptionCheckerAndThrowException(occupationMultiplier == null, "Meslek bilgisi veya meslek risk parametresi bulunamadı. ID: " + request.getOccupationId(), HttpStatus.NOT_FOUND);
         SmokerStatus smokerStatus = SmokerStatus.fromBoolean(request.isSmoker());
         BigDecimal smokerMultiplier = riskParameterRepository.findValueByCode(smokerStatus.name());
-        businessExceptionCheckerAndThrowException(smokerMultiplier == null , "Sigara kullanım durumu için risk parametresi bulunamadı.", HttpStatus.NOT_FOUND);
+        businessExceptionCheckerAndThrowException(smokerMultiplier == null, "Sigara kullanım durumu için risk parametresi bulunamadı.", HttpStatus.NOT_FOUND);
         BigDecimal diseaseMultiplier = calculateDiseaseMultiplier(request.getPersonalDiseaseIds());
 
         BigDecimal finalPrice = basePrice
@@ -58,12 +60,13 @@ public class PricingService {
     }
 
     private BigDecimal calculateDiseaseMultiplier(List<Long> diseaseIds) {
+
         if (CollectionUtils.isEmpty(diseaseIds)) {
             return BigDecimal.ONE;
         }
 
-        List<BigDecimal> diseaseValues = riskParameterRepository.findDiseaseRiskValues(diseaseIds);
-        businessExceptionCheckerAndThrowException(CollectionUtils.isEmpty(diseaseValues), "Belirtilen hastalıklara ait risk parametreleri sistemde bulunamadı.", HttpStatus.NOT_FOUND);
+        List<BigDecimal> diseaseValues = Optional.ofNullable(riskParameterRepository.findDiseaseRiskValues(diseaseIds)).orElse(Collections.emptyList());
+        businessExceptionCheckerAndThrowException(diseaseValues.isEmpty(), "Belirtilen hastalıklara ait risk parametreleri sistemde bulunamadı.", HttpStatus.NOT_FOUND);
 
         return diseaseValues.stream()
                 .filter(Objects::nonNull)
