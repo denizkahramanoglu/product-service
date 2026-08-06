@@ -2,7 +2,7 @@ package com.example.product_service.controller;
 
 import com.example.product_service.dto.PricingRequestDTO;
 import com.example.product_service.dto.PricingResponseDTO;
-import com.example.product_service.PricingService;
+import com.example.product_service.service.PricingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

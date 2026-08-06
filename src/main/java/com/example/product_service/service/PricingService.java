@@ -1,4 +1,4 @@
-package com.example.product_service;
+package com.example.product_service.service;
 
 import com.example.product_service.dto.PricingRequestDTO;
 import com.example.product_service.dto.PricingResponseDTO;
@@ -20,6 +20,13 @@ import java.util.Optional;
 
 import static com.example.product_service.util.BusinessExceptionUtil.businessExceptionCheckerAndThrowException;
 
+/**
+ * Sigorta ürünleri için fiyatlandırma hesaplamalarını gerçekleştiren servis sınıfı.
+ * Yaş, cinsiyet, boy/kilo (BMI), meslek, sigara kullanımı ve mevcut hastalıklar gibi
+ * çeşitli risk parametrelerini değerlendirerek poliçenin nihai fiyatını belirler.
+ *
+ * @author deniz
+ */
 @Service
 @RequiredArgsConstructor
 public class PricingService {
@@ -27,6 +34,15 @@ public class PricingService {
     private final InsuranceProductRepository productRepository;
     private final RiskParameterRepository riskParameterRepository;
 
+    /**
+     * Müşteriden alınan parametrelere göre sigorta ürününün nihai fiyatını hesaplar.
+     * Taban fiyat üzerinden yaş, cinsiyet, BMI, meslek, sigara kullanımı ve hastalık
+     * durumlarına ait risk çarpanlarını uygulayarak toplam tutarı bulur.
+     *
+     * @param request Fiyat hesaplaması için gerekli müşteri ve ürün bilgilerini içeren {@link PricingRequestDTO} nesnesi
+     * @return Hesaplanmış nihai fiyatı ve para birimini içeren {@link PricingResponseDTO} nesnesi
+     * @throws BusinessException Sigorta ürünü bulunamazsa veya ilgili risk parametrelerinden herhangi biri eksikse fırlatılır
+     */
     public PricingResponseDTO calculateFinalPrice(PricingRequestDTO request) {
 
         InsuranceProductEntity product = productRepository.findById(request.getProductId())
@@ -37,15 +53,20 @@ public class PricingService {
 
         BigDecimal ageMultiplier = riskParameterRepository.findValueByCode("AGE_" + request.getAge());
         businessExceptionCheckerAndThrowException(ageMultiplier == null, "Yaş grubu için risk parametresi bulunamadı. Yaş: " + request.getAge(), HttpStatus.NOT_FOUND);
+
         BigDecimal genderMultiplier = riskParameterRepository.findValueByCode("GENDER_" + request.getGender().toUpperCase());
         businessExceptionCheckerAndThrowException(genderMultiplier == null, "Cinsiyet için risk parametresi bulunamadı: " + request.getGender(), HttpStatus.NOT_FOUND);
+
         BigDecimal bmiMultiplier = riskParameterRepository.findBmiRiskValue(request.getWeight(), request.getHeight());
         businessExceptionCheckerAndThrowException(bmiMultiplier == null, "Girilen boy ve kilo değerlerine uygun BMI aralığı bulunamadı.", HttpStatus.NOT_FOUND);
+
         BigDecimal occupationMultiplier = riskParameterRepository.findOccupationRiskValue(request.getOccupationId());
         businessExceptionCheckerAndThrowException(occupationMultiplier == null, "Meslek bilgisi veya meslek risk parametresi bulunamadı. ID: " + request.getOccupationId(), HttpStatus.NOT_FOUND);
+
         SmokerStatus smokerStatus = SmokerStatus.fromBoolean(request.isSmoker());
         BigDecimal smokerMultiplier = riskParameterRepository.findValueByCode(smokerStatus.name());
         businessExceptionCheckerAndThrowException(smokerMultiplier == null, "Sigara kullanım durumu için risk parametresi bulunamadı.", HttpStatus.NOT_FOUND);
+
         BigDecimal diseaseMultiplier = calculateDiseaseMultiplier(request.getPersonalDiseaseIds());
 
         BigDecimal finalPrice = basePrice
@@ -59,6 +80,15 @@ public class PricingService {
         return new PricingResponseDTO(finalPrice, currency);
     }
 
+    /**
+     * Müşterinin sahip olduğu hastalıkların risk çarpanlarını hesaplar.
+     * Birden fazla hastalık olması durumunda, riski en yüksek olan hastalığın çarpanı baz alınır.
+     * Hiçbir hastalık yoksa etkisiz eleman olan 1 değeri dönülür.
+     *
+     * @param diseaseIds Müşteriye ait hastalıkların veritabanındaki benzersiz kimlik (ID) listesi
+     * @return Hastalıklar arasından en yüksek risk çarpanı değeri (Hastalık yoksa {@link BigDecimal#ONE})
+     * @throws BusinessException Belirtilen hastalıklara ait risk değerleri sistemde bulunamazsa fırlatılır
+     */
     private BigDecimal calculateDiseaseMultiplier(List<Long> diseaseIds) {
 
         if (CollectionUtils.isEmpty(diseaseIds)) {

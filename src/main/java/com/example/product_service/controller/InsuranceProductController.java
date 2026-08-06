@@ -2,7 +2,7 @@ package com.example.product_service.controller;
 
 import com.example.product_service.dto.InsuranceProductRequestDTO;
 import com.example.product_service.dto.InsuranceProductResponseDTO;
-import com.example.product_service.InsuranceProductService;
+import com.example.product_service.service.InsuranceProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

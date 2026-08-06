@@ -1,6 +1,5 @@
 package com.example.product_service.service;
 
-import com.example.product_service.InsuranceProductService;
 import com.example.product_service.dto.InsuranceProductRequestDTO;
 import com.example.product_service.dto.InsuranceProductResponseDTO;
 import com.example.product_service.entity.InsuranceProductEntity;

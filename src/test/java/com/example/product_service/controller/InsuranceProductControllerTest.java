@@ -2,7 +2,7 @@ package com.example.product_service.controller;
 
 import com.example.product_service.dto.InsuranceProductRequestDTO;
 import com.example.product_service.dto.InsuranceProductResponseDTO;
-import com.example.product_service.InsuranceProductService;
+import com.example.product_service.service.InsuranceProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
